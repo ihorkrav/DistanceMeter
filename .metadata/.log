@@ -1,0 +1,18 @@
+!SESSION 2026-01-26 15:49:31.963 -----------------------------------------------
+eclipse.buildId=Version 1.18.0
+java.version=21.0.3
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2026-01-26 15:50:22.017
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2026-01-26 15:50:22.019
+!MESSAGE Log4j2 initialized with config file D:\Studying\Distance_meter\Code\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2026-01-26 15:50:27.874
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-01-26 15:55:10.584
+!MESSAGE Indexed 'Distance meter' (19 sources, 81 headers) in 4.17 sec: 4,752 declarations; 19,342 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.0083%)
