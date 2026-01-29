@@ -1,0 +1,5 @@
+../Core/Inc/Fusion/FusionMath.h:201:28:FusionVectorAdd	72	static
+../Core/Inc/Fusion/FusionMath.h:218:28:FusionVectorSubtract	72	static
+../Core/Inc/Fusion/FusionMath.h:235:28:FusionVectorScale	64	static
+../Core/Inc/Fusion/FusionBias.c:39:6:FusionBiasInitialise	32	static
+../Core/Inc/Fusion/FusionBias.c:53:14:FusionBiasUpdate	72	static

@@ -1,3 +1,6 @@
+"./Core/Inc/Fusion/FusionAhrs.o"
+"./Core/Inc/Fusion/FusionBias.o"
+"./Core/Inc/Fusion/FusionCompass.o"
 "./Core/Src/main.o"
 "./Core/Src/stm32g4xx_hal_msp.o"
 "./Core/Src/stm32g4xx_it.o"

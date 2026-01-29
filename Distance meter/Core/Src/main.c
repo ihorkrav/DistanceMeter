@@ -5,13 +5,14 @@
 #include "Fusion.h"
 #include "INIT_STM32G431_GPIO.h"
 #include <CANFD_STM32G431.h>
-#include "BMP280.h"
 #include "DMA.h"
-#include "SPI.h"
-#include "IIM_42652.h"
+#include "..\Inc\Interfaces\SPI.h"
+#include "..\Inc\Interfaces\UART1.h"
+
+#include "..\Inc\Sensors\BMP280.h"
+#include "..\Inc\Sensors\IIM_42652.h"
 #include "LIS3MD.h"
 #include "main.h"
-#include "UART1.h"
 
 
 #define CANID 0x284

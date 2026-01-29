@@ -2,11 +2,11 @@
 /**
   ******************************************************************************
   * @file    stm32g4xx_it.c
-  * @brief   Interrupt Service Routines.
+   * @brief   Interrupt Service Routines.
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2026 STMicroelectronics.
+  * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -64,7 +64,7 @@
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
-  * @brief This function handles Non maskable interrupt.
+   * @brief This function handles Non maskable interrupt.
   */
 void NMI_Handler(void)
 {
@@ -79,7 +79,7 @@ void NMI_Handler(void)
 }
 
 /**
-  * @brief This function handles Hard fault interrupt.
+   * @brief This function handles Hard fault interrupt.
   */
 void HardFault_Handler(void)
 {
@@ -94,7 +94,7 @@ void HardFault_Handler(void)
 }
 
 /**
-  * @brief This function handles Memory management fault.
+   * @brief This function handles Memory management fault.
   */
 void MemManage_Handler(void)
 {
@@ -109,7 +109,7 @@ void MemManage_Handler(void)
 }
 
 /**
-  * @brief This function handles Prefetch fault, memory access fault.
+   * @brief This function handles Prefetch fault, memory access fault.
   */
 void BusFault_Handler(void)
 {
@@ -124,7 +124,7 @@ void BusFault_Handler(void)
 }
 
 /**
-  * @brief This function handles Undefined instruction or illegal state.
+   * @brief This function handles Undefined instruction or illegal state.
   */
 void UsageFault_Handler(void)
 {
@@ -139,7 +139,7 @@ void UsageFault_Handler(void)
 }
 
 /**
-  * @brief This function handles System service call via SWI instruction.
+   * @brief This function handles System service call via SWI instruction.
   */
 void SVC_Handler(void)
 {
@@ -152,7 +152,7 @@ void SVC_Handler(void)
 }
 
 /**
-  * @brief This function handles Debug monitor.
+   * @brief This function handles Debug monitor.
   */
 void DebugMon_Handler(void)
 {
@@ -165,7 +165,7 @@ void DebugMon_Handler(void)
 }
 
 /**
-  * @brief This function handles Pendable request for system service.
+   * @brief This function handles Pendable request for system service.
   */
 void PendSV_Handler(void)
 {
@@ -178,18 +178,9 @@ void PendSV_Handler(void)
 }
 
 /**
-  * @brief This function handles System tick timer.
+   * @brief This function handles System tick timer.
   */
-void SysTick_Handler(void)
-{
-  /* USER CODE BEGIN SysTick_IRQn 0 */
 
-  /* USER CODE END SysTick_IRQn 0 */
-  HAL_IncTick();
-  /* USER CODE BEGIN SysTick_IRQn 1 */
-
-  /* USER CODE END SysTick_IRQn 1 */
-}
 
 /******************************************************************************/
 /* STM32G4xx Peripheral Interrupt Handlers                                    */
