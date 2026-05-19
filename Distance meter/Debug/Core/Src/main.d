@@ -23,6 +23,8 @@ Core/Src/main.o: ../Core/Src/main.c \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash_ex.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash_ramfunc.h \
+ ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_i2c.h \
+ ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_i2c_ex.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr_ex.h \
  ../Core/Inc/Fusion.h ../Core/Inc/Fusion\FusionAhrs.h \
@@ -36,7 +38,11 @@ Core/Src/main.o: ../Core/Src/main.c \
  ../Core/Src/..\Inc\Sensors\BMP280.h \
  ../Core/Src/..\Inc\Sensors\..\Interfaces\I2C.h \
  ../Core/Src/..\Inc\Sensors\IIM_42652.h ../Core/Inc/Ixm42xxxDefs.h \
- ../Core/Inc/LIS3MD.h ../Core/Inc/main.h
+ ../Core/Inc/LIS3MD.h ../Core/Inc/main.h \
+ D:/Studying/Distance_meter/Distance_Meter_mainFolder/DistanceMeter/Distance\ meter/Drivers/OLED/ssd1306.h \
+ D:/Studying/Distance_meter/Distance_Meter_mainFolder/DistanceMeter/Distance\ meter/Drivers/OLED/ssd1306_conf.h \
+ D:/Studying/Distance_meter/Distance_Meter_mainFolder/DistanceMeter/Distance\ meter/Drivers/OLED/ssd1306_fonts.h \
+ D:/Studying/Distance_meter/Distance_Meter_mainFolder/DistanceMeter/Distance\ meter/Drivers/OLED/ssd1306.h
 ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h:
 ../Drivers/CMSIS/Include/core_cm4.h:
@@ -61,6 +67,8 @@ Core/Src/main.o: ../Core/Src/main.c \
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash_ex.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash_ramfunc.h:
+../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_i2c.h:
+../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_i2c_ex.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr_ex.h:
 ../Core/Inc/Fusion.h:
@@ -84,3 +92,7 @@ Core/Src/main.o: ../Core/Src/main.c \
 ../Core/Inc/Ixm42xxxDefs.h:
 ../Core/Inc/LIS3MD.h:
 ../Core/Inc/main.h:
+D:/Studying/Distance_meter/Distance_Meter_mainFolder/DistanceMeter/Distance\ meter/Drivers/OLED/ssd1306.h:
+D:/Studying/Distance_meter/Distance_Meter_mainFolder/DistanceMeter/Distance\ meter/Drivers/OLED/ssd1306_conf.h:
+D:/Studying/Distance_meter/Distance_Meter_mainFolder/DistanceMeter/Distance\ meter/Drivers/OLED/ssd1306_fonts.h:
+D:/Studying/Distance_meter/Distance_Meter_mainFolder/DistanceMeter/Distance\ meter/Drivers/OLED/ssd1306.h:

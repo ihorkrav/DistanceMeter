@@ -64,7 +64,7 @@ void SystemClock_Config(void) {
     SET_BIT(RCC->APB1ENR1, RCC_APB1ENR1_PWREN);
 
 
-
+    PWR->CR1 |= PWR_CR1_VOS_0;
 
 
 
@@ -150,7 +150,7 @@ void GPIO_INIT(void){
     // PA12 LED|PA11 FDCAN1_RX|PA10 SPI2_CS|PA9 I2C2 SCL|PA8 I2C2_SDA|PA7 SPI1_MOSI|PA6 SPI1_MISO|PA5 SPI1 _SCK
 
 	//   -------------  151413121110 9 8 7 6 5 4 3 2 1 0
-	GPIOA->MODER = 	  0b10101001100110101010101111111111; // General purpose output moder
+	GPIOA->MODER |= 	  0b10101001100110101010101111111111; // General purpose output moder
 
 
 
@@ -161,7 +161,7 @@ void GPIO_INIT(void){
     // PB7 USART1 RX  | PB6 USART1 TX |PB2 input War|PB1  ReadyOk |PBO SPI1_CS
 
 	//-------------    151413121110 9 8 7 6 5 4 3 2 1 0
-	GPIOB->MODER =   0b10101000001110111010111111000001; // General purpose output mode
+	GPIOB->MODER |=   0b10101000001110111010111111000001; // General purpose output mode
 	//-------------    151413121110 9 8 7 6 5 4 3 2 1 0
 	GPIOB->OSPEEDR = 0b11111111110011001111000000111111;
 
@@ -281,7 +281,6 @@ void GPIO_INIT(void){
   //NVIC_EnableIRQ(EXTI15_10_IRQn);
   //NVIC_EnableIRQ(EXTI1_IRQn);
   //NVIC_SetPriority(EXTI15_10_IRQHandler, 0);
-
 
 }
 

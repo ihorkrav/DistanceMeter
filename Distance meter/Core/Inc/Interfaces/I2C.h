@@ -14,13 +14,13 @@
 
 
 void I2C2_Init(void) {
-    RCC->APB1ENR1 |= RCC_APB1ENR1_I2C2EN;
+	RCC->APB1ENR1 |= RCC_APB1ENR1_I2C2EN;
     //RCC->APB1RSTR1 |= RCC_APB1RSTR1_I2C2RST; // Устанавливаем бит сброса
     //RCC->APB1RSTR1 &= ~RCC_APB1RSTR1_I2C2RST; // Сбрасываем бит сброса
     I2C2->TIMINGR = 0x30D29DE4;// 400кгц 160 мгц  0x30420F13;/////////
     //I2C2->TIMINGR = ((9 << 28) | (10 << 20) | (9 << 16) | (799 << 8) | 799);  // 100 кГц
 
-    I2C2->CR1 |= I2C_CR1_PE;   // Включаем I2C2
+    I2C2->CR1 |= I2C_CR1_PE;  // Включаем I2C2
 }
 
 void I2C2_Write(uint8_t dev_addr, uint8_t reg_addr, uint8_t data) {

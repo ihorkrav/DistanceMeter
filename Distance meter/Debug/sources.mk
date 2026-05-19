@@ -25,5 +25,6 @@ SUBDIRS := \
 Core/Inc/Fusion \
 Core/Src \
 Core/Startup \
+Drivers/OLED \
 Drivers/STM32G4xx_HAL_Driver/Src \
 
