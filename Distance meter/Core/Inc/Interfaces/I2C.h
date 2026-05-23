@@ -14,51 +14,182 @@
 
 
 void I2C2_Init(void) {
-	RCC->APB1ENR1 |= RCC_APB1ENR1_I2C2EN;
-    //RCC->APB1RSTR1 |= RCC_APB1RSTR1_I2C2RST; // Устанавливаем бит сброса
-    //RCC->APB1RSTR1 &= ~RCC_APB1RSTR1_I2C2RST; // Сбрасываем бит сброса
-    I2C2->TIMINGR = 0x30D29DE4;// 400кгц 160 мгц  0x30420F13;/////////
-    //I2C2->TIMINGR = ((9 << 28) | (10 << 20) | (9 << 16) | (799 << 8) | 799);  // 100 кГц
+//	RCC->APB1ENR1 |= RCC_APB1ENR1_I2C2EN;
+//    //RCC->APB1RSTR1 |= RCC_APB1RSTR1_I2C2RST; // Устанавливаем бит сброса
+//    //RCC->APB1RSTR1 &= ~RCC_APB1RSTR1_I2C2RST; // Сбрасываем бит сброса
+//    I2C2->TIMINGR = 0x30D29DE4;// 400кгц 160 мгц  0x30420F13;/////////
+//    //I2C2->TIMINGR = ((9 << 28) | (10 << 20) | (9 << 16) | (799 << 8) | 799);  // 100 кГц
+//
+//    I2C2->CR1 |= I2C_CR1_PE;  // Включаем I2C2
 
-    I2C2->CR1 |= I2C_CR1_PE;  // Включаем I2C2
+	// 1. Enable Clocks for GPIOA and I2C2
+	    RCC->AHB2ENR  |= RCC_AHB2ENR_GPIOAEN;
+	    RCC->APB1ENR1 |= RCC_APB1ENR1_I2C2EN;
+
+	    // 2. Configure PA8 (SDA) and PA9 (SCL)
+	    // Clear mode bits for Pin 8 and Pin 9
+	    GPIOA->MODER &= ~(GPIO_MODER_MODE8 | GPIO_MODER_MODE9);
+	    // Set both pins to Alternate Function Mode (0b10)
+	    GPIOA->MODER |= (2 << GPIO_MODER_MODE8_Pos) | (2 << GPIO_MODER_MODE9_Pos);
+
+	    // Set output type to Open-Drain (Crucial for I2C electrical specification)
+	    GPIOA->OTYPER |= (GPIO_OTYPER_OT8 | GPIO_OTYPER_OT9);
+
+	    // Set pin speed to Very High Speed (0b11) to ensure clean clock edges
+	    GPIOA->OSPEEDR |= (3 << GPIO_OSPEEDR_OSPEED8_Pos) | (3 << GPIO_OSPEEDR_OSPEED9_Pos);
+
+	    // Configure internal Pull-up resistors (0b01)
+	    // Keeps the bus high when idle if external resistors are weak
+	    GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPD8 | GPIO_PUPDR_PUPD9);
+	    GPIOA->PUPDR |= (1 << GPIO_PUPDR_PUPD8_Pos) | (1 << GPIO_PUPDR_PUPD9_Pos);
+
+	    // 3. Map Pins to Alternate Function 4 (AF4 = I2C2)
+	    // Both PA8 and PA9 use the High Alternate Function Register (AFR[1])
+	    GPIOA->AFR[1] &= ~((0xF << GPIO_AFRH_AFSEL8_Pos) | (0xF << GPIO_AFRH_AFSEL9_Pos));
+	    GPIOA->AFR[1] |= (4 << GPIO_AFRH_AFSEL8_Pos) | (4 << GPIO_AFRH_AFSEL9_Pos);
+
+	    // 4. Set I2C Timing for 400 kHz matching the 16 MHz HSI clock source
+	    I2C2->TIMINGR = 0x30D0262B;
+
+	    // 5. Enable the peripheral
+	    I2C2->CR1 |= I2C_CR1_PE;
 }
 
 void I2C2_Write(uint8_t dev_addr, uint8_t reg_addr, uint8_t data) {
-	   // Ожидание, пока шина не будет свободна
-	    while (I2C2->ISR & I2C_ISR_BUSY);
+//	   // Ожидание, пока шина не будет свободна
+//	    while (I2C2->ISR & I2C_ISR_BUSY);
+//
+//	    // Установка адреса устройства и регистра для записи
+//	    I2C2->CR2 = (dev_addr << 1) | (2 << I2C_CR2_NBYTES_Pos) | I2C_CR2_START;
+//	    while (!(I2C2->ISR & I2C_ISR_TXIS)) {
+//	        if (I2C2->ISR & I2C_ISR_NACKF) {
+//	            // Обработка ошибки NACK (неподтверждение устройства)
+//	            I2C2->ICR |= I2C_ICR_NACKCF;  // Сброс флага NACK
+//	            return;  // Выход из функции при ошибке
+//	        }
+//	    }
+//
+//	    // Отправка адреса регистра
+//	    I2C2->TXDR = reg_addr;
+//	    while (!(I2C2->ISR & I2C_ISR_TXIS)) {
+//	      if (I2C2->ISR & I2C_ISR_NACKF) {
+//	        // Обработка ошибки NACK (неподтверждение устройства)
+//	            I2C2->ICR |= I2C_ICR_NACKCF;  // Сброс флага NACK
+//	           return;  // Выход из функции при ошибке
+//	       }
+//	    }
+//
+//	    // Отправка данных
+//	    I2C2->TXDR = data;
+//	    while (!(I2C2->ISR & I2C_ISR_TC)) {
+//	        if (I2C2->ISR & I2C_ISR_NACKF) {
+//	            // Обработка ошибки NACK (неподтверждение устройства)
+//	            I2C2->ICR |= I2C_ICR_NACKCF;  // Сброс флага NACK
+//	            return;  // Выход из функции при ошибке
+//	        }
+//	    }
+//
+//	    // Завершение передачи
+//	    I2C2->CR2 |= I2C_CR2_STOP;
+	uint32_t timeout;
 
-	    // Установка адреса устройства и регистра для записи
-	    I2C2->CR2 = (dev_addr << 1) | (2 << I2C_CR2_NBYTES_Pos) | I2C_CR2_START;
-	    while (!(I2C2->ISR & I2C_ISR_TXIS)) {
-	        if (I2C2->ISR & I2C_ISR_NACKF) {
-	            // Обработка ошибки NACK (неподтверждение устройства)
-	            I2C2->ICR |= I2C_ICR_NACKCF;  // Сброс флага NACK
-	            return;  // Выход из функции при ошибке
-	        }
+	    // 1. Wait until the physical I2C bus is free
+	    timeout = TIMEOUT_I2C;
+	    while (I2C2->ISR & I2C_ISR_BUSY) {
+	        if (--timeout == 0) return; // Bus is stuck low (hardware failure)
 	    }
 
-	    // Отправка адреса регистра
+	    // 2. Clear status flags from any previous transfers to ensure a clean slate
+	    I2C2->ICR = I2C_ICR_NACKCF | I2C_ICR_STOPCF;
+
+	    // 3. Configure transaction: 2 bytes (1 register address + 1 data byte)
+	    I2C2->CR2 = (dev_addr << 1) |
+	                (2 << I2C_CR2_NBYTES_Pos) |
+	                I2C_CR2_AUTOEND |
+	                I2C_CR2_START;
+
+	    // 4. Wait for TXIS to write the register address
+	    timeout = TIMEOUT_I2C;
+	    while (!(I2C2->ISR & I2C_ISR_TXIS)) {
+	        if (I2C2->ISR & I2C_ISR_NACKF) {
+	            I2C2->ICR |= I2C_ICR_NACKCF;
+	            return; // Device rejected address
+	        }
+	        if (--timeout == 0) return;
+	    }
 	    I2C2->TXDR = reg_addr;
+
+	    // 5. Wait for TXIS to write the data byte
+	    timeout = TIMEOUT_I2C;
 	    while (!(I2C2->ISR & I2C_ISR_TXIS)) {
-	      if (I2C2->ISR & I2C_ISR_NACKF) {
-	        // Обработка ошибки NACK (неподтверждение устройства)
-	            I2C2->ICR |= I2C_ICR_NACKCF;  // Сброс флага NACK
-	           return;  // Выход из функции при ошибке
-	       }
-	    }
-
-	    // Отправка данных
-	    I2C2->TXDR = data;
-	    while (!(I2C2->ISR & I2C_ISR_TC)) {
 	        if (I2C2->ISR & I2C_ISR_NACKF) {
-	            // Обработка ошибки NACK (неподтверждение устройства)
-	            I2C2->ICR |= I2C_ICR_NACKCF;  // Сброс флага NACK
-	            return;  // Выход из функции при ошибке
+	            I2C2->ICR |= I2C_ICR_NACKCF;
+	            return; // Device rejected mid-stream
 	        }
+	        if (--timeout == 0) return;
 	    }
+	    I2C2->TXDR = data;
 
-	    // Завершение передачи
-	    I2C2->CR2 |= I2C_CR2_STOP;
+	    // 6. Wait until the hardware automatically sets the Stop Flag via AUTOEND
+	    timeout = TIMEOUT_I2C;
+	    while (!(I2C2->ISR & I2C_ISR_STOPF)) {
+	        if (--timeout == 0) return;
+	    }
+	    I2C2->ICR |= I2C_ICR_STOPCF; // Clear the stop flag for the next sequence
+
+}
+
+void I2C2_WriteMulti(uint8_t dev_addr, uint8_t reg_addr, uint8_t *pData, uint16_t length) {
+    uint32_t timeout;
+
+    // 1. Wait until the physical I2C bus is free
+    timeout = TIMEOUT_I2C;
+    while (I2C2->ISR & I2C_ISR_BUSY) {
+        if (--timeout == 0) return;
+    }
+
+    // 2. Clear status flags from any previous transfers to ensure a clean slate
+    I2C2->ICR = I2C_ICR_NACKCF | I2C_ICR_STOPCF;
+
+    // 3. Set up total bytes: length of payload + 1 byte for control/register selection
+    uint32_t total_bytes = length + 1;
+
+    // 4. Configure transaction and assert START
+    I2C2->CR2 = (dev_addr << 1) |
+                ((total_bytes << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk) |
+                I2C_CR2_AUTOEND |
+                I2C_CR2_START;
+
+    // 5. Send the Control Byte (0x00 for commands, 0x40 for data strings)
+    timeout = TIMEOUT_I2C;
+    while (!(I2C2->ISR & I2C_ISR_TXIS)) {
+        if (I2C2->ISR & I2C_ISR_NACKF) {
+            I2C2->ICR |= I2C_ICR_NACKCF;
+            return;
+        }
+        if (--timeout == 0) return;
+    }
+    I2C2->TXDR = reg_addr;
+
+    // 6. Stream the payload data array sequentially
+    for (uint16_t i = 0; i < length; i++) {
+        timeout = TIMEOUT_I2C;
+        while (!(I2C2->ISR & I2C_ISR_TXIS)) {
+            if (I2C2->ISR & I2C_ISR_NACKF) {
+                I2C2->ICR |= I2C_ICR_NACKCF;
+                return;
+            }
+            if (--timeout == 0) return;
+        }
+        I2C2->TXDR = pData[i];
+    }
+
+    // 7. Wait for the hardware to automatically finish the transmission via AUTOEND
+    timeout = TIMEOUT_I2C;
+    while (!(I2C2->ISR & I2C_ISR_STOPF)) {
+        if (--timeout == 0) return;
+    }
+    I2C2->ICR |= I2C_ICR_STOPCF; // Clear the stop flag for the next sequence
 }
 
 // info error

@@ -6,11 +6,11 @@
 #include "INIT_STM32G431_GPIO.h"
 #include <CANFD_STM32G431.h>
 #include "DMA.h"
-#include "..\Inc\Interfaces\SPI.h"
-#include "..\Inc\Interfaces\UART1.h"
-
-#include "..\Inc\Sensors\BMP280.h"
-#include "..\Inc\Sensors\IIM_42652.h"
+#include "Interfaces\SPI.h"
+#include "Interfaces\UART1.h"
+#include "Interfaces\I2C.h"
+#include "Sensors\BMP280.h"
+#include "Sensors\IIM_42652.h"
 #include "LIS3MD.h"
 #include "main.h"
 #include "ssd1306.h"
@@ -53,22 +53,24 @@ uint16_t spi2_rx_buf[30]={0},spi2rxsize = 12,
 
 uint8_t  spi2_rx_data[30]={0},*fdata, dmaComplete=0, readyINT1 =0;
 
-static void MX_I2C2_Init(void);
-static void MX_GPIO_Init(void);
+//static void MX_I2C2_Init(void);
+//static void MX_GPIO_Init(void);
 
-void I2C_SystemClock_Config(void);
-
+//void I2C_SystemClock_Config(void);
 int main(void) {
 
 ///////  Настройка системного тактирования
 
 	SystemClock_Config();
+	HAL_SYSTICK_Config(SystemCoreClock / 1000);
+	HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+	__enable_irq();
 	GPIO_INIT();
-	MX_GPIO_Init();
-	HAL_Init();
-	I2C_SystemClock_Config();
-	MX_I2C2_Init();
-MX_GPIO_Init();
+	//MX_GPIO_Init();
+//	HAL_Init();
+	//I2C_SystemClock_Config();
+	//MX_I2C2_Init();
+//MX_GPIO_Init();
 	CAN_Config();
 	Init_SPI_STM32();
 	RS422_UART_init(&dalnomer);
@@ -80,13 +82,16 @@ MX_GPIO_Init();
 	init_iim42652(&imu_iim42652);
 	init_lis3md	 (&mag_lis3md);
 	init_bmp280  (&bmp280_sensor1);
+	I2C2_Init();
+	for(volatile uint32_t i = 0; i < 1600000; i++) {
+	        __NOP();
+	    };
 	ssd1306_Init();
-ssd1306_SetCursor(20, 20);
-	// Simple delay (instead of HAL_Delay)
-	//for(volatile uint32_t i = 0; i < 2000000; i++);
-
+	for(volatile uint32_t i = 0; i < 1600000; i++) {
+	        __NOP();
+	    }
+	ssd1306_WriteCommand(0xA5);
 	ssd1306_Fill(White);
-//ssd1306_WriteString("Hello system", Font_7x10, White);
 	ssd1306_UpdateScreen();
 
 	float data32[2]= {0};
@@ -248,41 +253,41 @@ ssd1306_SetCursor(20, 20);
 ;
 ///////////// IRQ block CANFD
 
-void I2C_SystemClock_Config(void)
-{
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-
-  /** Configure the main internal regulator output voltage
-  */
-  HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
-
-  /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-}
+//void I2C_SystemClock_Config(void)
+//{
+//  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+//  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+//
+//  /** Configure the main internal regulator output voltage
+//  */
+//  HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
+//
+//  /** Initializes the RCC Oscillators according to the specified parameters
+//  * in the RCC_OscInitTypeDef structure.
+//  */
+//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+//  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+//  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+//  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+//  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//
+//  /** Initializes the CPU, AHB and APB buses clocks
+//  */
+//  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+//                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+//  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+//  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+//  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+//  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+//
+//  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//}
 // Message FIFO 0
 void FDCAN1_IT1_IRQHandler(void) {
 
@@ -446,61 +451,61 @@ void EXTI1_IRQHandler(void){
 
 };
 
-static void MX_GPIO_Init(void)
-{
-  /* USER CODE BEGIN MX_GPIO_Init_1 */
-
-  /* USER CODE END MX_GPIO_Init_1 */
-
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-
-  /* USER CODE BEGIN MX_GPIO_Init_2 */
-
-  /* USER CODE END MX_GPIO_Init_2 */
-}
-static void MX_I2C2_Init(void)
-{
-
-  /* USER CODE BEGIN I2C2_Init 0 */
-
-  /* USER CODE END I2C2_Init 0 */
-
-  /* USER CODE BEGIN I2C2_Init 1 */
-
-  /* USER CODE END I2C2_Init 1 */
-  hi2c2.Instance = I2C2;
-  hi2c2.Init.Timing = 0x00503D58;
-  hi2c2.Init.OwnAddress1 = 0;
-  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c2.Init.OwnAddress2 = 0;
-  hi2c2.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure Analogue filter
-  */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure Digital filter
-  */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c2, 0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN I2C2_Init 2 */
-
-  /* USER CODE END I2C2_Init 2 */
-
-}
+//static void MX_GPIO_Init(void)
+//{
+//  /* USER CODE BEGIN MX_GPIO_Init_1 */
+//
+//  /* USER CODE END MX_GPIO_Init_1 */
+//
+//  /* GPIO Ports Clock Enable */
+//  __HAL_RCC_GPIOA_CLK_ENABLE();
+//
+//  /* USER CODE BEGIN MX_GPIO_Init_2 */
+//
+//  /* USER CODE END MX_GPIO_Init_2 */
+//}
+//static void MX_I2C2_Init(void)
+//{
+//
+//  /* USER CODE BEGIN I2C2_Init 0 */
+//
+//  /* USER CODE END I2C2_Init 0 */
+//
+//  /* USER CODE BEGIN I2C2_Init 1 */
+//
+//  /* USER CODE END I2C2_Init 1 */
+//  hi2c2.Instance = I2C2;
+//  hi2c2.Init.Timing = 0x00503D58;
+//  hi2c2.Init.OwnAddress1 = 0;
+//  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+//  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+//  hi2c2.Init.OwnAddress2 = 0;
+//  hi2c2.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+//  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+//  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+//  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//
+//  /** Configure Analogue filter
+//  */
+//  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//
+//  /** Configure Digital filter
+//  */
+//  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c2, 0) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//  /* USER CODE BEGIN I2C2_Init 2 */
+//
+//  /* USER CODE END I2C2_Init 2 */
+//
+//}
 
 
 void Error_Handler(void) {

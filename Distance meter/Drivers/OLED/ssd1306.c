@@ -2,23 +2,74 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>  // For memcpy
-
+//#include "Interfaces\I2C.h"
 #if defined(SSD1306_USE_I2C)
+#ifndef TIMEOUT_I2C
+#define TIMEOUT_I2C 1600000
+// This tells ssd1306.c the functions exist elsewhere without re-importing the whole file
+extern void I2C2_WriteMulti(uint8_t dev_addr, uint8_t reg_addr, uint8_t *pData, uint16_t length);
 
 void ssd1306_Reset(void) {
     /* for I2C - do nothing */
 }
+// A bare-metal replacement for HAL_I2C_Mem_Write
+uint8_t I2C2_Mem_Write(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint16_t length) {
+    uint32_t timeout = TIMEOUT_I2C;
+    while (I2C2->ISR & I2C_ISR_BUSY) {
+        if (--timeout == 0) return 1;
+    }
 
-// Send a byte to the command register
+    // 1. Clear prior flags
+    I2C2->ICR = I2C_ICR_NACKCF | I2C_ICR_STOPCF;
+
+    // 2. Added I2C_CR2_AUTOEND here
+    I2C2->CR2 = (dev_addr << 1) |
+                (((length + 1) << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk) |
+                I2C_CR2_AUTOEND |
+                I2C_CR2_START;
+
+    // 3. Send the internal register/control byte
+    timeout = TIMEOUT_I2C;
+    while (!(I2C2->ISR & I2C_ISR_TXIS)) {
+        if (--timeout == 0) return 2;
+    }
+    I2C2->TXDR = reg_addr;
+
+    // 4. Stream the payload
+    for (uint16_t i = 0; i < length; i++) {
+        timeout = TIMEOUT_I2C;
+        while (!(I2C2->ISR & I2C_ISR_TXIS)) {
+            if (I2C2->ISR & I2C_ISR_NACKF) {
+                I2C2->ICR |= I2C_ICR_NACKCF;
+                return 3;
+            }
+            if (--timeout == 0) return 4;
+        }
+        I2C2->TXDR = data[i];
+    }
+
+    // 5. Wait for hardware AUTOEND to finish up cleanly
+    timeout = TIMEOUT_I2C;
+    while (!(I2C2->ISR & I2C_ISR_STOPF)) {
+        if (--timeout == 0) return 5;
+    }
+    I2C2->ICR |= I2C_ICR_STOPCF;
+
+    return 0;
+}
+// Define your display address (change to 0x3D if your module jumpers are configured differently)
+#define SSD1306_I2C_ADDR  0x3C
+
 void ssd1306_WriteCommand(uint8_t byte) {
-    HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR, 0x00, 1, &byte, 1, HAL_MAX_DELAY);
+    // Use your internal memory-write function instead of Multi
+    I2C2_Mem_Write(SSD1306_I2C_ADDR, 0x00, &byte, 1);
 }
 
-// Send data
-void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
-    HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR, 0x40, 1, buffer, buff_size, HAL_MAX_DELAY);
+void ssd1306_WriteData(uint8_t* buffer, uint16_t buff_size) {
+    // Use your internal memory-write function instead of Multi
+    I2C2_Mem_Write(SSD1306_I2C_ADDR, 0x40, buffer, buff_size);
 }
-
+#endif
 #elif defined(SSD1306_USE_SPI)
 
 void ssd1306_Reset(void) {
@@ -27,9 +78,13 @@ void ssd1306_Reset(void) {
 
     // Reset the OLED
     HAL_GPIO_WritePin(SSD1306_Reset_Port, SSD1306_Reset_Pin, GPIO_PIN_RESET);
-    HAL_Delay(10);
+    for(volatile uint32_t i = 0; i < 200000; i++) {
+            __NOP();
+        }
     HAL_GPIO_WritePin(SSD1306_Reset_Port, SSD1306_Reset_Pin, GPIO_PIN_SET);
-    HAL_Delay(10);
+    for(volatile uint32_t i = 0; i < 200000; i++) {
+            __NOP();
+        }
 }
 
 // Send a byte to the command register
@@ -70,12 +125,15 @@ SSD1306_Error_t ssd1306_FillBuffer(uint8_t* buf, uint32_t len) {
 }
 
 /* Initialize the oled screen */
+//extern uint16_t systick_pause;
 void ssd1306_Init(void) {
     // Reset OLED
-    ssd1306_Reset();
+    //ssd1306_Reset();
 
     // Wait for the screen to boot
-    HAL_Delay(100);
+    for(volatile uint32_t i = 0; i < 2000000; i++) {
+        __NOP();
+    }
 
     // Init OLED
     ssd1306_SetDisplayOn(0); //display off
