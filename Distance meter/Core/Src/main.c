@@ -81,8 +81,8 @@ int main(void) {
 
 ///////  Sensors
 
-
 	uint8_t imu_init_result = init_iim42652(&imu_iim42652);
+	uint8_t bmp_status = init_bmp280(&bmp280_sensor1);
 	init_lis3md	 (&mag_lis3md);
 	init_bmp280  (&bmp280_sensor1);
 	hi2c2.Instance = I2C2;
@@ -101,16 +101,20 @@ int main(void) {
 	    }
 	//
 	ssd1306_Init();
+	for(volatile uint32_t i = 0; i < 1600000; i++) {
+	    __NOP();
+	}
+	ssd1306_Init();
 	ssd1306_Fill(Black);
 	ssd1306_SetCursor(0, 2);
-	ssd1306_WriteString("X:     0", Font_7x10, White);
-	ssd1306_SetCursor(0, 22);
-	ssd1306_WriteString("Y:     0", Font_7x10, White);
-	ssd1306_SetCursor(0, 42);
-	ssd1306_WriteString("Z:     0", Font_7x10, White);
+	ssd1306_WriteString("BMP280", Font_7x10, White);
+	ssd1306_SetCursor(0, 16);
+	ssd1306_WriteString("T: --.-C", Font_7x10, White);
+	ssd1306_SetCursor(0, 30);
+	ssd1306_WriteString("P: -----Pa", Font_7x10, White);
 	ssd1306_UpdateScreen();
 
-	float data32[2]= {0};
+	float data32[2] = {0};
 
 
 	while (1) {
@@ -118,29 +122,26 @@ int main(void) {
 	    // iim42652
 	    if(*(imu_iim42652.status) & DMA_OK_IIM42xxx) {
 	        *(imu_iim42652.status) &= ~DMA_OK_IIM42xxx;
-	        if(*(imu_iim42652.status) & DMA_OK_IIM42xxx) {
-	            *(imu_iim42652.status) &= ~DMA_OK_IIM42xxx;
 
-	            sendACC = 1;
-	            fdata = (uint8_t*) imu_iim42652.DMA_RX_fifo_buf;
-	            spi2_rx_data[0]  = *fdata;
-	            spi2_rx_data[1]  = *(fdata+3);
-	            spi2_rx_data[2]  = *(fdata+2);
-	            spi2_rx_data[3]  = *(fdata+5);
-	            spi2_rx_data[4]  = *(fdata+4);
-	            spi2_rx_data[5]  = *(fdata+7);
-	            spi2_rx_data[6]  = *(fdata+6);
-	            spi2_rx_data[7]  = *(fdata+9);
-	            spi2_rx_data[8]  = *(fdata+8);
-	            spi2_rx_data[9]  = *(fdata+11);
-	            spi2_rx_data[10] = *(fdata+10);
-	            spi2_rx_data[11] = *(fdata+13);
-	            spi2_rx_data[12] = *(fdata+12);
-	            spi2_rx_data[13] = *(fdata+15);
-	            spi2_rx_data[14] = *(fdata+14);
-	            spi2_rx_data[15] = *(fdata+17);
-	            spi2_rx_data[16] = *(fdata+16);
-	        }
+	        sendACC = 1;
+	        fdata = (uint8_t*) imu_iim42652.DMA_RX_fifo_buf;
+	        spi2_rx_data[0]  = *fdata;
+	        spi2_rx_data[1]  = *(fdata+3);
+	        spi2_rx_data[2]  = *(fdata+2);
+	        spi2_rx_data[3]  = *(fdata+5);
+	        spi2_rx_data[4]  = *(fdata+4);
+	        spi2_rx_data[5]  = *(fdata+7);
+	        spi2_rx_data[6]  = *(fdata+6);
+	        spi2_rx_data[7]  = *(fdata+9);
+	        spi2_rx_data[8]  = *(fdata+8);
+	        spi2_rx_data[9]  = *(fdata+11);
+	        spi2_rx_data[10] = *(fdata+10);
+	        spi2_rx_data[11] = *(fdata+13);
+	        spi2_rx_data[12] = *(fdata+12);
+	        spi2_rx_data[13] = *(fdata+15);
+	        spi2_rx_data[14] = *(fdata+14);
+	        spi2_rx_data[15] = *(fdata+17);
+	        spi2_rx_data[16] = *(fdata+16);
 	    }
 
 	    // lis3md
@@ -190,24 +191,6 @@ int main(void) {
 	    if (sendACC) {
 	        CAN_SendMessage(CANID,   (uint8_t*) spi2_rx_data, 8);
 	        CAN_SendMessage(CANID+1, (uint8_t*) spi2_rx_data+8, 8);
-
-	        int16_t ax = (int16_t)((spi2_rx_data[3] << 8) | spi2_rx_data[6]);
-	        int16_t ay = (int16_t)((spi2_rx_data[5] << 8) | spi2_rx_data[8]);
-	        int16_t az = (int16_t)((spi2_rx_data[7] << 8) | spi2_rx_data[10]);
-
-	        char buf[32];
-	        ssd1306_Fill(Black);
-	        ssd1306_SetCursor(0, 2);
-	        snprintf(buf, sizeof(buf), "X:%6d", ax);
-	        ssd1306_WriteString(buf, Font_7x10, White);
-	        ssd1306_SetCursor(0, 22);
-	        snprintf(buf, sizeof(buf), "Y:%6d", ay);
-	        ssd1306_WriteString(buf, Font_7x10, White);
-	        ssd1306_SetCursor(0, 42);
-	        snprintf(buf, sizeof(buf), "Z:%6d", az);
-	        ssd1306_WriteString(buf, Font_7x10, White);
-	        ssd1306_UpdateScreen();
-
 	        sendACC = 0;
 	    }
 
@@ -233,8 +216,22 @@ int main(void) {
 	        *(bmp280_sensor1.raw_t) = ((int32_t)(bmp280_sensor1.DMArx_buf[3]) << 12) |
 	                                  ((int32_t)(bmp280_sensor1.DMArx_buf[4]) << 4)  |
 	                                  ((bmp280_sensor1.DMArx_buf[5] >> 4) & 0x0F);
+
 	        data32[0] = BMP280_Compensate_Temperature(&bmp280_sensor1);
 	        data32[1] = BMP280_Compensate_Pressure(&bmp280_sensor1);
+
+	        char buf[32];
+	        ssd1306_Fill(Black);
+	        ssd1306_SetCursor(0, 2);
+	        ssd1306_WriteString("BMP280", Font_7x10, White);
+	        ssd1306_SetCursor(0, 16);
+	        snprintf(buf, sizeof(buf), "T:%.1fC", data32[0]);
+	        ssd1306_WriteString(buf, Font_7x10, White);
+	        ssd1306_SetCursor(0, 30);
+	        snprintf(buf, sizeof(buf), "P:%.0fPa", data32[1]);
+	        ssd1306_WriteString(buf, Font_7x10, White);
+	        ssd1306_UpdateScreen();
+
 	        CAN_SendMessage(CANID+3, bmp280_sensor1.DMArx_buf, 8);
 	        sendPs = 0;
 	    }

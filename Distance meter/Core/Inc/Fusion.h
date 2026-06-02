@@ -14,13 +14,13 @@
 extern "C" {
 #endif
 
-#include "Fusion\FusionAhrs.h"
-#include "Fusion\FusionBias.h"
-#include "Fusion\FusionCompass.h"
-#include "Fusion\FusionConvention.h"
-#include "Fusion\FusionMath.h"
-#include "Fusion\FusionModel.h"
-#include "Fusion\FusionRemap.h"
+#include "Fusion/FusionAhrs.h"
+#include "Fusion/FusionBias.h"
+#include "Fusion/FusionCompass.h"
+#include "Fusion/FusionConvention.h"
+#include "Fusion/FusionMath.h"
+#include "Fusion/FusionModel.h"
+#include "Fusion/FusionRemap.h"
 
 #ifdef __cplusplus
 }
