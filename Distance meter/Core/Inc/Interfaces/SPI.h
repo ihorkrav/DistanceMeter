@@ -18,6 +18,18 @@
 #define SPI2_clr_DMA SPI2->CR2 &=0xFFFC;
 
 
+#define IIM42XXX_CS_on   (GPIOB->BRR  = (1 << 10))
+#define IIM42XXX_CS_off  (GPIOB->BSRR = (1 << 10))
+
+// MAG CS → PB1
+#define LIS3M_CS_on      (GPIOB->BRR  = (1 << 1))
+#define LIS3M_CS_off     (GPIOB->BSRR = (1 << 1))
+
+// BMP CS → PA4 (you already use SPI1 NSS there → easy choice)
+#define BMP_CS_on        (GPIOA->BRR  = (1 << 4))
+#define BMP_CS_off       (GPIOA->BSRR = (1 << 4))
+
+
 void Init_SPI_STM32(void) {
 
 	RCC->APB1ENR1 |= RCC_APB1ENR1_SPI2EN;
@@ -184,7 +196,9 @@ void Init_SPI_STM32(void) {
 	 *	1: DMA для буфера RX увімкнено
 	 */
 
-	SPI2->CR2 |= (0b1111 << 8) | 0; // 16 BIT /
+
+	SPI2->CR2 |=  (0b1111 << 8) | 0;  // 16-bit
+
 	SPI1->CR2 |= (0b1111 << 8) | 0; // 16 BIT /
 
 	/*
@@ -513,6 +527,12 @@ void DMA1_Channelxx_IRQHandler(void) {
  *
  *
  * */
+
+static inline uint8_t SPI_Read_ID(SPI_TypeDef *spi, uint8_t reg)
+{
+    SPI_data8(spi, reg | 0x80);   // send register with READ bit
+    return SPI_data8(spi, 0x00);  // read response
+}
 
 
 #endif /* INC_SPI_H_ */

@@ -8,7 +8,7 @@
 #ifndef INC_BMP280_H_
 #define INC_BMP280_H_
 
-#include "..\Interfaces\I2C.h"
+#include "../Interfaces/I2C.h"
 #include "math.h"
 ////////////////////////////// BMP280 /////////////////////////
 

@@ -35,7 +35,7 @@ Core/Src/main.o: ../Core/Src/main.c \
  ../Core/Inc/INIT_STM32G431_GPIO.h ../Core/Inc/CANFD_STM32G431.h \
  ../Core/Inc/DMA.h ../Core/Inc/Interfaces\SPI.h \
  ../Core/Inc/Interfaces\UART1.h ../Core/Inc/Interfaces\I2C.h \
- ../Core/Inc/Sensors\BMP280.h ../Core/Inc/Sensors\..\Interfaces\I2C.h \
+ ../Core/Inc/Sensors\BMP280.h ../Core/Inc/Sensors\../Interfaces/I2C.h \
  ../Core/Inc/Sensors\IIM_42652.h ../Core/Inc/Ixm42xxxDefs.h \
  ../Core/Inc/LIS3MD.h ../Core/Inc/main.h \
  D:/Studying/Distance_meter/Distance_Meter_mainFolder/DistanceMeter/Distance\ meter/Drivers/OLED/ssd1306.h \
@@ -87,7 +87,7 @@ Core/Src/main.o: ../Core/Src/main.c \
 ../Core/Inc/Interfaces\UART1.h:
 ../Core/Inc/Interfaces\I2C.h:
 ../Core/Inc/Sensors\BMP280.h:
-../Core/Inc/Sensors\..\Interfaces\I2C.h:
+../Core/Inc/Sensors\../Interfaces/I2C.h:
 ../Core/Inc/Sensors\IIM_42652.h:
 ../Core/Inc/Ixm42xxxDefs.h:
 ../Core/Inc/LIS3MD.h:

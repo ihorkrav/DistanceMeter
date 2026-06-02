@@ -49,6 +49,8 @@ void I2C2_Init(void) {
 	    GPIOA->AFR[1] |= (4 << GPIO_AFRH_AFSEL8_Pos) | (4 << GPIO_AFRH_AFSEL9_Pos);
 
 	    // 4. Set I2C Timing for 400 kHz matching the 16 MHz HSI clock source
+	    // Примусово використовуємо HSI16 (16МГц) для I2C2 — незалежно від PLL
+	    RCC->CCIPR = (RCC->CCIPR & ~RCC_CCIPR_I2C2SEL) | RCC_CCIPR_I2C2SEL_1;
 	    I2C2->TIMINGR = 0x30D0262B;
 
 	    // 5. Enable the peripheral
